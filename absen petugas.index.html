@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kios Sampah Mimika</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root {
+            --primary: #059669; --primary-light: #34d399; --primary-dark: #047857; --accent: #10b981;
+            --bg-body: #f4f6f5; --card-bg: #ffffff; --text-main: #1f2937; --text-muted: #6b7280;
+            --danger: #ef4444; --warning: #f59e0b;
+        }
+        
+        body { background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); overflow-x: hidden; max-width: 100vw; margin: 0; padding: 0; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+        .animate-fade-up { animation: fadeUp 0.5s ease-out forwards; } .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+
+        .hero-header { background: linear-gradient(145deg, var(--primary-dark) 0%, var(--primary) 100%); position: relative; padding: 1.75rem 1rem 5rem 1rem; color: white; z-index: 1; border-bottom-left-radius: 36px; border-bottom-right-radius: 36px; box-shadow: 0 10px 30px rgba(5, 150, 105, 0.2); }
+        .logo-img { width: 48px; height: 48px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 4px 12px rgba(0,0,0,0.15); object-fit: cover; background: white; padding: 2px; }
+        .date-badge { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.25); color: white; }
+
+        .dashboard-container { margin-top: -3.4rem; position: relative; z-index: 10; }
+        .stat-card { background: var(--card-bg); border-radius: 20px; padding: 1.1rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); height: 100%; transition: all 0.25s ease; }
+        .stat-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 0.6rem; }
+        .card-total .stat-icon { background: #e0f2fe; color: #0284c7; } .card-hadir .stat-icon { background: #d1fae5; color: var(--primary); } .card-absen .stat-icon { background: #fee2e2; color: var(--danger); }
+        .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--text-main); line-height: 1.1; } .stat-label { color: var(--text-muted); font-weight: 500; font-size: 0.8rem; }
+
+        .table-container { background: var(--card-bg); border-radius: 24px; padding: 1.2rem; margin-bottom: 5.5rem; }
+        .table { --bs-table-bg: transparent; margin-bottom: 0; font-size: 0.85rem; }
+        .table th { font-weight: 600; color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase; border-bottom: 2px solid #f3f4f6; } .table td { padding: 0.75rem 0.5rem; vertical-align: middle; border-bottom: 1px solid #f9fafb; font-weight: 500; }
+        .badge-modern { padding: 0.35em 0.75em; border-radius: 50rem; font-weight: 600; font-size: 0.68rem; }
+        .bg-soft-primary { background: #d1fae5; color: #047857; } .bg-soft-info { background: #e0f2fe; color: #0369a1; } .bg-soft-danger { background: #fee2e2; color: #b91c1c; } .bg-soft-warning { background: #fef3c7; color: #b45309; } .bg-soft-dark { background: #f3f4f6; color: #374151; } .bg-soft-purple { background: #f3e8ff; color: #7e22ce; }
+
+        .fab { position: fixed; bottom: 24px; right: 24px; width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--accent)); color: white; font-size: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(16, 185, 129, 0.45); cursor: pointer; z-index: 1000; animation: pulse-glow 2s infinite; }
+        .modal-content { border-radius: 24px; border: none; background: var(--bg-body); } .modal-header { background: white; border-radius: 24px 24px 0 0; border-bottom: 1px solid #f3f4f6; }
+        .form-section { background: white; border-radius: 18px; padding: 1.1rem; margin-bottom: 1rem; border: 1px solid #f3f4f6; }
+        .form-control, .form-select { border-radius: 12px; border: 1.5px solid #e5e7eb; padding: 0.7rem 0.9rem; font-size: 0.85rem; font-weight: 500; background-color: #f9fafb; } .readonly-input { background-color: #f3f4f6 !important; border-style: dashed; }
+        .camera-box { border: 2px dashed #cbd5e1; border-radius: 14px; padding: 1rem; text-align: center; background: #f8fafc; } .signature-container { background: white; border: 2px solid #e2e8f0; border-radius: 14px; overflow: hidden; touch-action: none; } canvas#signature-pad { width: 100%; height: 160px; cursor: crosshair; }
+        .btn-submit { background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; border-radius: 14px; padding: 0.9rem; font-weight: 700; color: white; width: 100%; }
+
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .pulse-logo { width: 80px; height: 80px; border-radius: 18px; object-fit: cover; animation: float 3s ease-in-out infinite; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .spinner-custom { width: 32px; height: 32px; border: 4px solid #d1fae5; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">
+        <img src="https://lh3.googleusercontent.com/d/1Xut73Lto0b88o5sF5BOC4yoeitQZsN7L" class="pulse-logo mb-3" alt="Logo Kios Sampah" onerror="this.src='https://placehold.co/90x90/10b981/ffffff?text=KSM'">
+        <div class="spinner-custom mb-2"></div>
+        <h6 class="fw-bold text-dark mb-1">Memuat Sistem KSM</h6>
+        <p class="text-muted small">Menyinkronkan data Mimika...</p>
+    </div>
+
+    <header class="hero-header">
+        <div class="container position-relative z-1 px-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="https://lh3.googleusercontent.com/d/1Xut73Lto0b88o5sF5BOC4yoeitQZsN7L" class="logo-img" alt="Logo" onerror="this.src='https://placehold.co/48x48/10b981/ffffff?text=KSM'">
+                    <div class="d-flex flex-column justify-content-center">
+                        <h4 class="mb-0 fw-bold text-white" style="font-size: 1.05rem; letter-spacing: 0.3px; line-height: 1.2;">Kios Sampah Mimika</h4>
+                        <p class="mb-0 text-white-50" style="font-size: 0.72rem; margin-top: 2px;"><i class="bi bi-shield-check me-1"></i>Sistem Absensi Petugas Kios</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center date-badge rounded-pill px-2 py-1 shadow-sm">
+                    <i class="bi bi-calendar3 me-1"></i>
+                    <span id="current-date-header" class="fw-medium" style="font-size: 0.7rem;"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container px-3 pb-5">
+        <div class="row g-2.5 dashboard-container mb-4">
+            <div class="col-12 animate-fade-up delay-1">
+                <div class="stat-card card-total">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label">Total Petugas Kios</div>
+                            <div class="stat-value" id="stat-total-petugas">0</div>
+                        </div>
+                        <div class="stat-icon mb-0"><i class="bi bi-people-fill"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 animate-fade-up delay-2">
+                <div class="stat-card card-hadir">
+                    <div class="d-flex flex-column">
+                        <div class="stat-icon"><i class="bi bi-person-check-fill"></i></div>
+                        <div class="stat-label">Hadir Masuk</div>
+                        <div class="stat-value" id="stat-hadir">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 animate-fade-up delay-3">
+                <div class="stat-card card-absen">
+                    <div class="d-flex flex-column">
+                        <div class="stat-icon"><i class="bi bi-person-dash-fill"></i></div>
+                        <div class="stat-label">Tidak Hadir</div>
+                        <div class="stat-value" id="stat-izin">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container animate-fade-up delay-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="table-title mb-0 fw-bold fs-6"><i class="bi bi-clock-history text-primary me-2"></i>Log Absensi Hari Ini</h5>
+                    <p class="text-muted xsmall mb-0" style="font-size: 0.72rem;">Pantauan real-time di lapangan</p>
+                </div>
+                <button class="btn btn-light rounded-pill px-2 py-1 shadow-sm border btn-sm" onclick="loadData()"><i class="bi bi-arrow-clockwise text-primary"></i></button>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Waktu</th><th>Nama & Kios</th><th>Tipe</th><th>Status</th></tr></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <div id="empty-state" class="text-center py-4 d-none">
+                <i class="bi bi-folder2-open text-muted" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                <h6 class="fw-bold text-muted mb-1 fs-6">Belum Ada Absensi</h6>
+                <p class="text-muted small mb-0" style="font-size: 0.72rem;">Data log hari ini masih kosong.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="fab" data-bs-toggle="modal" data-bs-target="#absenModal" title="Ketuk untuk Absen"><i class="bi bi-fingerprint"></i></div>
+
+    <div class="modal fade" id="absenModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-soft-primary p-2 rounded-circle"><i class="bi bi-leaf text-success fs-6"></i></div>
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0 fs-6">Formulir Absensi</h5>
+                            <div class="small text-muted" id="live-clock" style="font-size: 0.72rem;"><i class="bi bi-clock me-1"></i>00:00:00 WIT</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close bg-light rounded-circle p-2" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAbsen">
+                        <input type="hidden" id="inputTanggal">
+                        <input type="hidden" id="inputWaktu">
+
+                        <div class="form-section">
+                            <h6 class="fw-bold text-primary mb-2 fs-6"><i class="bi bi-person-badge me-2"></i>Data Petugas</h6>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Nama Lengkap Petugas</label>
+                                <select class="form-select" id="inputPetugas" required><option value="">-- Pilih Nama Anda --</option></select>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label small fw-bold">Lokasi Kios Sampah</label>
+                                <select class="form-select" id="inputKios" required>
+                                    <option value="">-- Pilih Lokasi Kios --</option>
+                                    <option value="Kios Sampah Timika Jaya">Kios Sampah Timika Jaya</option>
+                                    <option value="Kios Sampah Kwamki Baru">Kios Sampah Kwamki Baru</option>
+                                    <option value="Kios Sampah Harapan">Kios Sampah Harapan</option>
+                                    <option value="Kios Sampah Inauga">Kios Sampah Inauga</option>
+                                    <option value="Kios Sampah Sempan">Kios Sampah Sempan</option>
+                                    <option value="Kios Sampah Wonosari Jaya">Kios Sampah Wonosari Jaya</option>
+                                    <option value="Kios Sampah Kamoro Jaya">Kios Sampah Kamoro Jaya</option>
+                                    <option value="Kios Sampah Mandiri Jaya">Kios Sampah Mandiri Jaya</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h6 class="fw-bold text-primary mb-2 fs-6"><i class="bi bi-clipboard-check me-2"></i>Status Kehadiran</h6>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold">Tipe Absen</label>
+                                    <select class="form-select" id="inputTipe" required>
+                                        <option value="Masuk">Masuk</option>
+                                        <option value="Pulang">Pulang (Min 15:00)</option>
+                                        <option value="Tidak Masuk">Tidak Masuk</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold">Status</label>
+                                    <select class="form-select" id="inputStatus" required>
+                                        <option value="Hadir">Hadir</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label small fw-bold">Keterangan Tambahan</label>
+                                <textarea class="form-control" id="inputKeterangan" rows="2" placeholder="Wajib diisi jika Izin/Sakit..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section bg-soft-warning border-0 py-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="fw-bold text-warning-emphasis mb-0 fs-6"><i class="bi bi-geo-alt-fill me-1.5"></i>Koordinat GPS</h6>
+                                <button type="button" class="btn btn-sm btn-warning rounded-pill px-2 py-1 text-dark fw-medium" id="btnRefreshGps" style="font-size: 0.72rem;"><i class="bi bi-crosshair me-1"></i> Lacak</button>
+                            </div>
+                            <div id="gps-status" class="small text-muted mb-1" style="font-size: 0.72rem;">Mendeteksi posisi perangkat...</div>
+                            <input type="text" class="form-control readonly-input text-danger font-monospace py-1.5" id="inputGps" readonly placeholder="Menunggu Koordinat..." required style="font-size: 0.78rem;">
+                        </div>
+
+                        <div class="form-section bg-soft-info border-0 py-3">
+                            <h6 class="fw-bold text-primary-emphasis mb-1 fs-6"><i class="bi bi-camera-fill me-1.5"></i>Foto Bukti (Selfie)</h6>
+                            <p class="text-muted mb-2" style="font-size: 0.72rem;">Pastikan anda berada di area kios.</p>
+                            <div class="camera-box">
+                                <img id="foto-preview" src="" alt="Preview Foto" class="img-fluid rounded-3 shadow-sm w-100 mb-2" style="display: none; max-height: 180px; object-fit: cover;">
+                                <button type="button" class="btn btn-primary rounded-pill px-3 py-2 fw-bold w-100 shadow-sm btn-sm" onclick="document.getElementById('nativeCamera').click();"><i class="bi bi-camera me-1.5"></i> Buka Kamera HP</button>
+                                <input type="file" accept="image/*" capture="user" id="nativeCamera" style="display: none;">
+                            </div>
+                            <input type="hidden" id="inputFotoBase64" required>
+                        </div>
+
+                        <div class="form-section bg-soft-primary border-0 py-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="fw-bold text-success-emphasis mb-0 fs-6"><i class="bi bi-pen-fill me-1.5"></i>Tanda Tangan</h6>
+                                <button type="button" class="btn btn-sm btn-light text-danger rounded-pill px-2 py-0.5 shadow-sm" id="btnClearSignature" style="font-size: 0.72rem;"><i class="bi bi-eraser-fill me-1"></i> Hapus</button>
+                            </div>
+                            <div class="signature-container shadow-sm"><canvas id="signature-pad"></canvas></div>
+                            <input type="hidden" id="inputTtdBase64" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-submit" id="btnSubmit"><i class="bi bi-send-check-fill me-2"></i> Kirim Absensi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let db = { petugas: [], absensi: [] };
+        let isSimulation = typeof google === 'undefined';
+        let signaturePadCanvas = null; let signatureContext = null; let isDrawing = false; let liveTimeInterval;
+
+        function isDateToday(dateStr) {
+            if (!dateStr) return false;
+            const dStr = String(dateStr);
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const d = String(today.getDate()).padStart(2, '0');
+            return dStr.includes(`${y}-${m}-${d}`) || dStr.includes(`${d}/${m}/${y}`) || dStr.includes(`${m}/${d}/${y}`) || dStr.includes(`${d}-${m}-${y}`);
+        }
+
+        function startLiveTime() {
+            const headerDate = document.getElementById('current-date-header');
+            const clockEl = document.getElementById('live-clock');
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            
+            if(headerDate) headerDate.innerText = new Date().toLocaleDateString('id-ID', options);
+            
+            liveTimeInterval = setInterval(() => {
+                const now = new Date();
+                const jam = String(now.getHours()).padStart(2, '0');
+                const mnt = String(now.getMinutes()).padStart(2, '0');
+                const dtk = String(now.getSeconds()).padStart(2, '0');
+                
+                if(clockEl) clockEl.innerHTML = `<i class="bi bi-clock me-1"></i>${jam}:${mnt}:${dtk} WIT`;
+                
+                document.getElementById('inputTanggal').value = now.toLocaleDateString('id-ID', options);
+                document.getElementById('inputWaktu').value = `${jam}:${mnt}:${dtk}`;
+
+                // FITUR BARU: TRIGGER RESET TENGAH MALAM (00:00:00)
+                if (jam === '00' && mnt === '00' && dtk === '00') {
+                    if(headerDate) headerDate.innerText = now.toLocaleDateString('id-ID', options);
+                    loadData(); // Memuat ulang data secara otomatis agar layar kembali bersih di hari yang baru
+                }
+            }, 1000);
+        }
+
+        function getLokasiGPS() {
+            const gpsInput = document.getElementById('inputGps');
+            const gpsStatus = document.getElementById('gps-status');
+            gpsInput.value = "";
+            gpsStatus.innerHTML = '<span class="text-warning fw-bold"><i class="spinner-border spinner-border-sm me-1"></i> Melacak satelit...</span>';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        gpsInput.value = `${position.coords.latitude}, ${position.coords.longitude}`;
+                        gpsStatus.innerHTML = `<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Lokasi Terkunci</span>`;
+                    },
+                    (error) => {
+                        let errMsg = "Tidak Terlacak"; let detailMsg = "Gagal mendapatkan lokasi akurat.";
+                        if (error.code === 1) { errMsg = "Izin Ditolak"; detailMsg = "Browser menolak akses lokasi. Pastikan izin diberikan."; } 
+                        else if (error.code === 2) { errMsg = "Sinyal Lemah"; detailMsg = "Pastikan fitur GPS di HP Anda menyala."; } 
+                        else if (error.code === 3) { errMsg = "Waktu Habis"; detailMsg = "Pencarian satelit terlalu lama."; }
+                        gpsStatus.innerHTML = `<span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i> ${errMsg}</span>`;
+                        gpsInput.value = `Gagal: ${errMsg}`; 
+                        Swal.fire({ icon: 'info', title: errMsg, text: detailMsg + " Anda tetap dapat melanjutkan absensi.", confirmButtonText: 'Lanjutkan' });
+                    },
+                    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+                );
+            } else {
+                gpsStatus.innerHTML = `<span class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i> Tidak mendukung</span>`;
+                gpsInput.value = "Tidak Mendukung";
+            }
+        }
+
+        document.getElementById('nativeCamera').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 700;
+                    let width = img.width; let height = img.height;
+                    if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                    document.getElementById('foto-preview').src = dataUrl;
+                    document.getElementById('foto-preview').style.display = 'block';
+                    document.getElementById('inputFotoBase64').value = dataUrl;
+                    Swal.close();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        function initSignaturePad() {
+            signaturePadCanvas = document.getElementById('signature-pad');
+            signatureContext = signaturePadCanvas.getContext('2d');
+            signaturePadCanvas.width = signaturePadCanvas.parentElement.offsetWidth;
+            signaturePadCanvas.height = 160;
+            signatureContext.lineWidth = 3; signatureContext.lineCap = 'round'; signatureContext.strokeStyle = '#047857';
+            
+            signaturePadCanvas.addEventListener('mousedown', startDrawing); signaturePadCanvas.addEventListener('mousemove', draw);
+            signaturePadCanvas.addEventListener('mouseup', stopDrawing); signaturePadCanvas.addEventListener('mouseout', stopDrawing);
+            signaturePadCanvas.addEventListener('touchstart', (e)=>{e.preventDefault(); startDrawing(e)}, {passive: false});
+            signaturePadCanvas.addEventListener('touchmove', (e)=>{e.preventDefault(); draw(e)}, {passive: false});
+            signaturePadCanvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function getPointerPos(e) {
+            const rect = signaturePadCanvas.getBoundingClientRect();
+            let clientX = e.clientX; let clientY = e.clientY;
+            if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+        function startDrawing(e) { isDrawing = true; const pos = getPointerPos(e); signatureContext.beginPath(); signatureContext.moveTo(pos.x, pos.y); }
+        function draw(e) { if (!isDrawing) return; const pos = getPointerPos(e); signatureContext.lineTo(pos.x, pos.y); signatureContext.stroke(); document.getElementById('inputTtdBase64').value = signaturePadCanvas.toDataURL('image/png'); }
+        function stopDrawing() { if(isDrawing) { isDrawing = false; signatureContext.closePath(); document.getElementById('inputTtdBase64').value = signaturePadCanvas.toDataURL('image/png'); } }
+        document.getElementById('btnClearSignature').addEventListener('click', () => { signatureContext.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height); document.getElementById('inputTtdBase64').value = ''; });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadData(); startLiveTime();
+            
+            const modalEl = document.getElementById('absenModal');
+            modalEl.addEventListener('shown.bs.modal', function () { getLokasiGPS(); setTimeout(initSignaturePad, 200); });
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                signatureContext.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
+                document.getElementById('foto-preview').style.display = 'none'; document.getElementById('foto-preview').src = '';
+                document.getElementById('inputFotoBase64').value = ''; 
+                document.getElementById('formAbsen').reset();
+                document.getElementById('inputStatus').innerHTML = '<option value="Hadir">Hadir</option>';
+            });
+            
+            document.getElementById('btnRefreshGps').addEventListener('click', getLokasiGPS);
+            
+            document.getElementById('inputTipe').addEventListener('change', function() {
+                const statusSelect = document.getElementById('inputStatus');
+                if (this.value === 'Pulang' && new Date().getHours() < 15) {
+                    Swal.fire('Belum Waktunya', 'Absen pulang mulai jam 15:00 WIT.', 'warning'); 
+                    this.value = 'Masuk';
+                } 
+                if (this.value === 'Tidak Masuk') {
+                    Swal.fire({ icon: 'info', title: 'Pemberitahuan', text: 'Jika Anda mengirim absen "Tidak Masuk" hari ini, maka Anda tidak akan bisa melakukan absen "Pulang" di sore harinya.', confirmButtonText: 'Saya Mengerti' });
+                    statusSelect.innerHTML = `<option value="Izin">Izin</option><option value="Sakit">Sakit</option><option value="Tanpa Keterangan">Tanpa Keterangan</option>`;
+                } else {
+                    statusSelect.innerHTML = `<option value="Hadir">Hadir</option>`;
+                }
+            });
+            
+            document.getElementById('formAbsen').addEventListener('submit', submitAbsen);
+        });
+
+        function loadData() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            if (isSimulation) {
+                setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 500);
+            } else {
+                google.script.run
+                    .withSuccessHandler(res => { 
+                        document.getElementById('loading-overlay').style.display = 'none';
+                        if(res && res.status === 'success') { 
+                            db = res; 
+                            renderUI(); 
+                        } else if (res && res.status === 'error') {
+                            Swal.fire('Informasi', res.message, 'warning');
+                        }
+                    })
+                    .withFailureHandler(err => { 
+                        document.getElementById('loading-overlay').style.display = 'none'; 
+                        Swal.fire('Error', 'Gagal menyinkronkan data. Pastikan internet stabil.', 'error'); 
+                    })
+                    .getAllData();
+            }
+        }
+
+        function renderUI() {
+            const select = document.getElementById('inputPetugas');
+            select.innerHTML = '<option value="">-- Pilih Nama Anda --</option>';
+            
+            const petugasArray = db.petugas || [];
+            const petugasSorted = [...petugasArray].sort((a, b) => (a.Nama || "").localeCompare(b.Nama || ""));
+            petugasSorted.forEach(p => { select.appendChild(new Option(p.Nama, p.ID_Petugas)); });
+
+            const absensiArray = db.absensi || [];
+            const todayAbsen = absensiArray.filter(a => isDateToday(a.Tanggal));
+            
+            document.getElementById('stat-total-petugas').innerText = petugasArray.length;
+            document.getElementById('stat-hadir').innerText = todayAbsen.filter(a => a.Status === 'Hadir' && a.Tipe_Absen === 'Masuk').length;
+            document.getElementById('stat-izin').innerText = todayAbsen.filter(a => a.Status !== 'Hadir' || a.Tipe_Absen === 'Tidak Masuk').length;
+
+            const tbody = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+            tbody.innerHTML = '';
+            
+            if (todayAbsen.length === 0) { emptyState.classList.remove('d-none'); tbody.parentElement.classList.add('d-none'); } 
+            else {
+                emptyState.classList.add('d-none'); tbody.parentElement.classList.remove('d-none');
+                todayAbsen.sort((a, b) => (b.Waktu || "").localeCompare(a.Waktu || ""));
+                todayAbsen.forEach(a => {
+                    let badgeType = a.Tipe_Absen === 'Masuk' ? 'bg-soft-info' : (a.Tipe_Absen === 'Pulang' ? 'bg-soft-purple' : 'bg-soft-danger');
+                    let badgeStatus = a.Status === 'Hadir' ? 'bg-soft-primary' : (a.Status === 'Izin' ? 'bg-soft-warning' : (a.Status === 'Sakit' ? 'bg-soft-danger' : 'bg-soft-dark'));
+                    tbody.innerHTML += `<tr><td class="text-muted fw-bold" style="font-size: 0.72rem;">${a.Waktu ? a.Waktu.substring(0,5) : '--:--'}</td>
+                        <td><div class="fw-bold" style="font-size: 0.8rem;">${a.Nama}</div><div class="text-muted" style="font-size: 0.68rem;"><i class="bi bi-shop me-1"></i>${a.Kios}</div></td>
+                        <td><span class="badge badge-modern ${badgeType}">${a.Tipe_Absen}</span></td><td><span class="badge badge-modern ${badgeStatus}">${a.Status}</span></td></tr>`;
+                });
+            }
+        }
+
+        function submitAbsen(e) {
+            e.preventDefault();
+            const gps = document.getElementById('inputGps').value;
+            const foto = document.getElementById('inputFotoBase64').value;
+            const ttd = document.getElementById('inputTtdBase64').value;
+            const idPetugas = document.getElementById('inputPetugas').value;
+            const tipeAbs = document.getElementById('inputTipe').value;
+
+            if (!gps) return Swal.fire('Lokasi Diperlukan', 'Tunggu hingga status pelacakan lokasi selesai.', 'warning');
+            if (!foto) return Swal.fire('Foto Diperlukan', 'Ambil foto selfie di kios.', 'warning');
+            if (!ttd) return Swal.fire('Tanda Tangan Kosong', 'Harap lakukan tanda tangan digital.', 'warning');
+
+            const absensiArray = db.absensi || [];
+            const sudahAbsen = absensiArray.some(a => String(a.ID_Petugas) === String(idPetugas) && isDateToday(a.Tanggal) && a.Tipe_Absen === tipeAbs);
+            if (sudahAbsen) return Swal.fire('Sudah Absen', `Anda sudah tercatat melakukan absen ${tipeAbs} hari ini.`, 'error');
+
+            if (tipeAbs === 'Pulang') {
+                const statusTidakMasuk = absensiArray.some(a => String(a.ID_Petugas) === String(idPetugas) && isDateToday(a.Tanggal) && a.Tipe_Absen === 'Tidak Masuk');
+                if (statusTidakMasuk) {
+                    return Swal.fire('Akses Ditolak', 'Anda tidak dapat melakukan absen Pulang karena Anda telah tercatat Tidak Masuk (Izin/Sakit/Tanpa Keterangan) hari ini.', 'error');
+                }
+            }
+
+            const petugasList = db.petugas || [];
+            const payload = {
+                idPetugas: idPetugas,
+                nama: petugasList.find(x => x.ID_Petugas === idPetugas).Nama,
+                kios: document.getElementById('inputKios').value,
+                tipeAbsen: tipeAbs,
+                status: document.getElementById('inputStatus').value,
+                keterangan: document.getElementById('inputKeterangan').value,
+                gps: gps, fotoBase64: foto, ttdBase64: ttd
+            };
+
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...';
+
+            if (isSimulation) {
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('absenModal')).hide();
+                    btn.disabled = false; btn.innerHTML = '<i class="bi bi-send-check-fill me-2"></i> Kirim Absensi';
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Simulasi Berhasil', timer: 2000, showConfirmButton: false });
+                }, 800);
+            } else {
+                google.script.run
+                    .withSuccessHandler(res => {
+                        if (res && res.status === 'success') {
+                            bootstrap.Modal.getInstance(document.getElementById('absenModal')).hide();
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Absen tersimpan.', timer: 2500, showConfirmButton: false });
+                            loadData();
+                        } else { Swal.fire('Gagal', res.message, 'error'); }
+                        btn.disabled = false; btn.innerHTML = '<i class="bi bi-send-check-fill me-2"></i> Kirim Absensi';
+                    })
+                    .withFailureHandler(err => {
+                        Swal.fire('Error', 'Gagal terhubung ke server.', 'error');
+                        btn.disabled = false; btn.innerHTML = '<i class="bi bi-send-check-fill me-2"></i> Kirim Absensi';
+                    })
+                    .saveAbsensi(payload);
+            }
+        }
+    </script>
+</body>
+</html>
